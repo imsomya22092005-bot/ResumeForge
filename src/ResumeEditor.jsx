@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./resume-editor.css";
 import { ArrowLeft, Check, Download, Eye, FileText, LayoutTemplate, Save, Sparkles, Trash2 } from "lucide-react";
 
 const blankResume = {

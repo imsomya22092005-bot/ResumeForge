@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Dashboard from "./Dashboard";
 import {
   ArrowRight, Check, ChevronDown, FileText, Menu, X, Sparkles,
   ShieldCheck, Zap, Palette, Download, LayoutTemplate, CircleCheck,
@@ -52,7 +53,7 @@ function MiniResume({ tone = "classic", large = false }) {
 }
 
 
-function AuthPage({ mode, onModeChange, onHome }) {
+function AuthPage({ mode, onModeChange, onHome, onSuccess }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -71,9 +72,7 @@ function AuthPage({ mode, onModeChange, onHome }) {
       setNotice("Please use a password with at least 8 characters.");
       return;
     }
-    setNotice(isSignup
-      ? "Your form looks good! Account creation will work once authentication is connected."
-      : "Your form looks good! Sign-in will work once authentication is connected.");
+    onSuccess({ name: isSignup ? name.trim() : (email.split("@")[0] || "there"), email: email.trim() });
   };
 
   return (
@@ -115,7 +114,7 @@ function AuthPage({ mode, onModeChange, onHome }) {
             <button className="auth-submit" type="submit">{isSignup ? "Create my account" : "Log in"} <ArrowRight size={17} /></button>
           </form>
           <p className="auth-switch">{isSignup ? "Already have an account?" : "New to ResumeForge?"} <button onClick={() => { onModeChange(isSignup ? "login" : "signup"); setNotice(""); }}>{isSignup ? "Log in" : "Create an account"}</button></p>
-          <p className="auth-terms"><ShieldCheck size={14} /> Your details stay yours. Authentication will be securely connected in the next build step.</p>
+          <p className="auth-terms"><ShieldCheck size={14} /> Preview mode: this opens the dashboard UI. Secure account authentication will be connected next.</p>
         </section>
       </div>
       <footer className="auth-footer">© 2026 ResumeForge · Built for your next chapter.</footer>
@@ -127,11 +126,27 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [authMode, setAuthMode] = useState("");
+  const [dashboardUser, setDashboardUser] = useState(null);
+  const [showCreateNotice, setShowCreateNotice] = useState(false);
 
   const startBuilding = () => setAuthMode("signup");
+  const enterDashboard = (user) => {
+    setDashboardUser(user);
+    setAuthMode("");
+    setShowCreateNotice(false);
+  };
+  const leaveDashboard = () => {
+    setDashboardUser(null);
+    setAuthMode("login");
+  };
+  const createResume = () => setShowCreateNotice(true);
+
+  if (dashboardUser) {
+    return <><Dashboard user={dashboardUser} onLogout={leaveDashboard} onCreateResume={createResume} />{showCreateNotice && <div className="dashboard-modal-backdrop" role="presentation" onClick={() => setShowCreateNotice(false)}><section className="dashboard-modal" role="dialog" aria-modal="true" aria-labelledby="builder-coming-title" onClick={(event) => event.stopPropagation()}><button className="dashboard-modal-close" onClick={() => setShowCreateNotice(false)} aria-label="Close">×</button><span className="dashboard-modal-icon"><Sparkles size={24} /></span><span className="eyebrow">COMING UP NEXT</span><h2 id="builder-coming-title">Your resume builder is next.</h2><p>The dashboard is ready to explore. Next, we’ll build the editor where you can add your details, choose a template, and prepare your resume.</p><button className="button-primary" onClick={() => setShowCreateNotice(false)}>Got it <ArrowRight size={16} /></button></section></div>}</>;
+  }
 
   if (authMode) {
-    return <AuthPage mode={authMode} onModeChange={setAuthMode} onHome={() => setAuthMode("")} />;
+    return <AuthPage mode={authMode} onModeChange={setAuthMode} onHome={() => setAuthMode("")} onSuccess={enterDashboard} />;
   }
 
   const handleSubmit = (event) => {

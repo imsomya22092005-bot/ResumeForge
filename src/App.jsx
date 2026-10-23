@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Dashboard from "./Dashboard";
+import ResumeEditor from "./ResumeEditor";
 import {
   ArrowRight, Check, ChevronDown, FileText, Menu, X, Sparkles,
   ShieldCheck, Zap, Palette, Download, LayoutTemplate, CircleCheck,
@@ -127,7 +128,7 @@ function App() {
   const [email, setEmail] = useState("");
   const [authMode, setAuthMode] = useState("");
   const [dashboardUser, setDashboardUser] = useState(null);
-  const [showCreateNotice, setShowCreateNotice] = useState(false);
+  const [showResumeEditor, setShowResumeEditor] = useState(false);
 
   const startBuilding = () => setAuthMode("signup");
   const enterDashboard = (user) => {
@@ -137,12 +138,16 @@ function App() {
   };
   const leaveDashboard = () => {
     setDashboardUser(null);
+    setShowResumeEditor(false);
     setAuthMode("login");
   };
-  const createResume = () => setShowCreateNotice(true);
+  const createResume = () => setShowResumeEditor(true);
 
   if (dashboardUser) {
-    return <><Dashboard user={dashboardUser} onLogout={leaveDashboard} onCreateResume={createResume} />{showCreateNotice && <div className="dashboard-modal-backdrop" role="presentation" onClick={() => setShowCreateNotice(false)}><section className="dashboard-modal" role="dialog" aria-modal="true" aria-labelledby="builder-coming-title" onClick={(event) => event.stopPropagation()}><button className="dashboard-modal-close" onClick={() => setShowCreateNotice(false)} aria-label="Close">×</button><span className="dashboard-modal-icon"><Sparkles size={24} /></span><span className="eyebrow">COMING UP NEXT</span><h2 id="builder-coming-title">Your resume builder is next.</h2><p>The dashboard is ready to explore. Next, we’ll build the editor where you can add your details, choose a template, and prepare your resume.</p><button className="button-primary" onClick={() => setShowCreateNotice(false)}>Got it <ArrowRight size={16} /></button></section></div>}</>;
+    if (showResumeEditor) {
+      return <ResumeEditor user={dashboardUser} onBack={() => setShowResumeEditor(false)} />;
+    }
+    return <Dashboard user={dashboardUser} onLogout={leaveDashboard} onCreateResume={createResume} />;
   }
 
   if (authMode) {

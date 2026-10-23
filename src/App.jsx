@@ -134,7 +134,7 @@ function App() {
   const enterDashboard = (user) => {
     setDashboardUser(user);
     setAuthMode("");
-    setShowCreateNotice(false);
+    setShowResumeEditor(false);
   };
   const leaveDashboard = () => {
     setDashboardUser(null);

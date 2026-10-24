@@ -1,4 +1,6 @@
 import { useState } from "react";
+import Dashboard from "./Dashboard";
+import ResumeEditor from "./ResumeEditor";
 import {
   ArrowRight, Check, ChevronDown, FileText, Menu, X, Sparkles,
   ShieldCheck, Zap, Palette, Download, LayoutTemplate, CircleCheck,
@@ -51,13 +53,106 @@ function MiniResume({ tone = "classic", large = false }) {
   );
 }
 
+
+function AuthPage({ mode, onModeChange, onHome, onSuccess }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [notice, setNotice] = useState("");
+  const isSignup = mode === "signup";
+
+  const handleAuthSubmit = (event) => {
+    event.preventDefault();
+    setNotice("");
+    if (isSignup && password !== confirmPassword) {
+      setNotice("Your passwords don’t match. Please try again.");
+      return;
+    }
+    if (password.length < 8) {
+      setNotice("Please use a password with at least 8 characters.");
+      return;
+    }
+    onSuccess({ name: isSignup ? name.trim() : (email.split("@")[0] || "there"), email: email.trim() });
+  };
+
+  return (
+    <main className="auth-page">
+      <header className="auth-header">
+        <button className="brand auth-brand" onClick={onHome} aria-label="Back to ResumeForge home">
+          <span className="brand-mark"><FileText size={22} strokeWidth={2.3} /></span>
+          <span>Resume<span className="brand-light">Forge</span><span className="brand-period">.</span></span>
+        </button>
+        <button className="auth-back" onClick={onHome}>← Back to home</button>
+      </header>
+      <div className="auth-layout">
+        <section className="auth-welcome">
+          <span className="eyebrow"><Sparkles size={14} /> YOUR NEXT CHAPTER STARTS HERE</span>
+          <h1>{isSignup ? <>Make room for<br /><span>what’s next.</span></> : <>Welcome<br /><span>back.</span></>}</h1>
+          <p>{isSignup
+            ? "Create your free account and get ready to turn your experience into a story worth sharing."
+            : "Pick up where your next career chapter begins. Your best resume starts here."}</p>
+          <div className="auth-benefit"><span><Check size={16} /></span><div><strong>Thoughtful templates</strong><small>Professional layouts without the formatting stress.</small></div></div>
+          <div className="auth-benefit"><span><Check size={16} /></span><div><strong>Your story, your way</strong><small>Build a resume that feels like you.</small></div></div>
+          <div className="auth-decoration"><FileText size={112} strokeWidth={1} /><Sparkles className="auth-decoration-sparkle" size={27} /></div>
+        </section>
+        <section className="auth-card">
+          <div className="auth-tabs" role="tablist" aria-label="Account access">
+            <button className={isSignup ? "active" : ""} onClick={() => { onModeChange("signup"); setNotice(""); }} role="tab" aria-selected={isSignup}>Create account</button>
+            <button className={!isSignup ? "active" : ""} onClick={() => { onModeChange("login"); setNotice(""); }} role="tab" aria-selected={!isSignup}>Log in</button>
+          </div>
+          <div className="auth-card-heading">
+            <span className="eyebrow">{isSignup ? "LET’S GET YOU STARTED" : "GOOD TO HAVE YOU BACK"}</span>
+            <h2>{isSignup ? "Create your account" : "Log in to ResumeForge"}</h2>
+            <p>{isSignup ? "A few details and you’re on your way." : "Enter your details to continue."}</p>
+          </div>
+          <form className="auth-form" onSubmit={handleAuthSubmit}>
+            {isSignup && <label>Full name<input type="text" placeholder="e.g. Alex Morgan" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" required /></label>}
+            <label>Email address<input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required /></label>
+            <label>Password<input type="password" placeholder="At least 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={isSignup ? "new-password" : "current-password"} minLength={8} required /></label>
+            {isSignup && <label>Confirm password<input type="password" placeholder="Enter your password again" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" minLength={8} required /></label>}
+            {notice && <p className="auth-notice" role="status">{notice}</p>}
+            <button className="auth-submit" type="submit">{isSignup ? "Create my account" : "Log in"} <ArrowRight size={17} /></button>
+          </form>
+          <p className="auth-switch">{isSignup ? "Already have an account?" : "New to ResumeForge?"} <button onClick={() => { onModeChange(isSignup ? "login" : "signup"); setNotice(""); }}>{isSignup ? "Log in" : "Create an account"}</button></p>
+          <p className="auth-terms"><ShieldCheck size={14} /> Preview mode: this opens the dashboard UI. Secure account authentication will be connected next.</p>
+        </section>
+      </div>
+      <footer className="auth-footer">© 2026 ResumeForge · Built for your next chapter.</footer>
+    </main>
+  );
+}
+
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
+  const [authMode, setAuthMode] = useState("");
+  const [dashboardUser, setDashboardUser] = useState(null);
+  const [showResumeEditor, setShowResumeEditor] = useState(false);
 
-  const startBuilding = () => {
-    document.getElementById("get-started")?.scrollIntoView({ behavior: "smooth" });
+  const startBuilding = () => setAuthMode("signup");
+  const enterDashboard = (user) => {
+    setDashboardUser(user);
+    setAuthMode("");
+    setShowResumeEditor(false);
   };
+  const leaveDashboard = () => {
+    setDashboardUser(null);
+    setShowResumeEditor(false);
+    setAuthMode("login");
+  };
+  const createResume = () => setShowResumeEditor(true);
+
+  if (dashboardUser) {
+    if (showResumeEditor) {
+      return <ResumeEditor user={dashboardUser} onBack={() => setShowResumeEditor(false)} />;
+    }
+    return <Dashboard user={dashboardUser} onLogout={leaveDashboard} onCreateResume={createResume} />;
+  }
+
+  if (authMode) {
+    return <AuthPage mode={authMode} onModeChange={setAuthMode} onHome={() => setAuthMode("")} onSuccess={enterDashboard} />;
+  }
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -82,7 +177,8 @@ function App() {
           <a href="#templates" onClick={() => setMenuOpen(false)}>Templates</a>
           <a href="#how-it-works" onClick={() => setMenuOpen(false)}>How it works</a>
           <a href="#faq" onClick={() => setMenuOpen(false)}>FAQs</a>
-          <button className="nav-cta" onClick={startBuilding}>Build my resume <ArrowRight size={16} /></button>
+          <button className="nav-login" onClick={() => { setMenuOpen(false); setAuthMode("login"); }}>Log in</button>
+          <button className="nav-cta" onClick={() => { setMenuOpen(false); setAuthMode("signup"); }}>Get started <ArrowRight size={16} /></button>
         </nav>
       </header>
 

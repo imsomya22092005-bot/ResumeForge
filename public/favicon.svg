@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1769e8"/>
+      <stop offset="1" stop-color="#00358d"/>
+    </linearGradient>
+    <linearGradient id="feather" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#65c8ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="25" fill="url(#bg)"/>
+  <path d="M29 18h46l17 17v30H78V40H40v69H29z" fill="#fff"/>
+  <path d="M75 18v17h17z" fill="#75ccff"/>
+  <circle cx="51" cy="49" r="7" fill="#1260d5"/>
+  <path d="M40 66c0-7 5-11 11-11s11 4 11 11v3H40z" fill="#1260d5"/>
+  <path d="M66 47h15M66 56h15M66 65h11" fill="none" stroke="#1260d5" stroke-width="3.8" stroke-linecap="round"/>
+  <path d="M52 111c8-27 24-44 53-59-7 21-20 39-53 59z" fill="url(#feather)"/>
+  <path d="M53 110c13-21 27-36 45-49" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M29 81h14v28H29z" fill="#fff"/>
+  <path d="M66 109l-9-14 9-9 20 23z" fill="#fff"/>
+</svg>
